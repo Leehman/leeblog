@@ -1,27 +1,5 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      fixed
-      :mini-variant="miniVariant"
-      :clipped="clipped"
-      v-model="drawer"
-      app
-    >
-      <v-list>
-        <v-list-tile
-          value="true"
-          v-for="(item, i) in items"
-          :key="i"
-        >
-          <v-list-tile-action>
-            <v-icon v-html="item.icon"></v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"></v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
-      </v-list>
-    </v-navigation-drawer>
     <v-toolbar fixed app :clipped-left="clipped">
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-btn icon @click.stop="miniVariant = !miniVariant">
@@ -39,67 +17,88 @@
         <v-icon>menu</v-icon>
       </v-btn>
     </v-toolbar>
+    <v-spacer></v-spacer>
     <v-content>
-      <v-container fluid>
-          <v-layout column align-center>
+      <v-container grid-list-md text-xs-center>
+          <v-layout row wrap>
             <template>
-              <div>
-                <form>
-                  <div>Blog Post:</div>
-                  <br>
-                  <v-text-field
-                  label="Title"
-                  v-model="blogtitle"
-                  placeholder="Add a Blog Title"
+              <v-flex xs12 sm6 offset-sm3>
+                <v-card dark color="grey darken-1">
 
-                  ></v-text-field>
-                  <br>
-                  <v-text-field
-                  label="Post"
-                  v-model="blogpost"
-                  placeholder="Add the Post"
+                  <v-form v-model="valid" >
 
-                  ></v-text-field>
-                  <br>
-                  <v-text-field
-                  label="Posted"
-                  v-model="blogposted"
-                  placeholder="Today"
-                  disabled
-                  ></v-text-field>
-                  <br>
-                  <v-btn @click="submit">submit</v-btn>
-                  <v-btn @click="clear">clear</v-btn>
-                  <br>
-                </form>
+                    <v-card-title>Blog Post:</v-card-title>
 
-              </div>
+                    <v-text-field
+                      label="Title"
+                      v-model="blogtitle"
+                      placeholder="Add a Blog Title"
+                      :rules="titleRules"
+                      :counter="10"
+                      required
+                      name="blogtitle"
+                    ></v-text-field>
+
+                    <v-text-field
+                      label="Post"
+                      v-model="blogpost"
+                      placeholder="Add the Post"
+                      :rules="postRules"
+                      :counter="30"
+                      required
+                      name="blogpost"
+                    ></v-text-field>
+
+                    <v-text-field
+                      label="Posted"
+                      v-model="blogposted"
+                      placeholder="Today - Time"
+                      disabled
+                      name="blogposted"
+                      max="15"
+                    ></v-text-field>
+                    <v-card-actions >
+                      <v-btn @click="submit"  :disabled="!valid" color="grey lighten-1">submit</v-btn>
+                      <v-btn @click="clear" color="grey lighten-1">clear</v-btn>
+                    </v-card-actions>
+                  </v-form>
+                </v-card>
+              </v-flex>
+
             </template>
           </v-layout>
-            <br>
-          <v-layout column align-center>
-            <template>
-              <div>
-                  <br>
-                  <div>Blog Post List:</div>
-                  <br>
-                    <ul>
-                      <li v-for="(item, index) in itemls" >
+        </v-container>
 
-                        Title: {{  item.title }} <br>
-                        Post: {{  item.post }} <br>
-                        Posted: {{  item.posted }} <br>
-                         <v-btn @click="removeit(index)"> Delete </v-btn>
-                         <v-btn @click="editit(index)"> Edit </v-btn><br>
-                      </li>
-                    </ul>
+        <v-container grid-list-md text-xs-center>
+            <v-layout row wrap>
+              <template>
+                <v-flex xs12 sm6 offset-sm3>
+                  <v-card dark color="grey darken-1">
+                    <v-card-title>Blog Post List:</v-card-title>
+                    <v-form>
+                      <ul>
 
-                  <br>
-                </div>
-              </template>
-          </v-layout>
+                        <li v-for="(item, index) in itemls" >
 
-      </v-container>
+                            <v-card-text>Title: {{  item.title }}  </v-card-text>
+                            <v-card-text>Post: {{  item.post }} </v-card-text>
+                            <v-card-text>Posted: {{  item.posted }} </v-card-text>
+
+                          <v-card-actions>
+                             <v-btn @click="removeit(index)" color="grey lighten-1"> Delete </v-btn>
+                             <v-btn @click="editit(index)" color="grey lighten-1"> Edit </v-btn>
+                          </v-card-actions>
+                        </li>
+
+                      </ul>
+                    </v-form>
+
+                  </v-card>
+                </v-flex>
+                </template>
+            </v-layout>
+
+        </v-container>
     </v-content>
 
     <v-footer :fixed="fixed" app>
@@ -117,67 +116,60 @@
         drawer: true,
         fixed: false,
         items: [ ],
-        title: 'Blog - Lee',
-        //blogpost: '',
-        itemls: [{ title: 'Or Not', post: ' This maybe okay ', posted: 'Today'}],
+        title: "Blog of Lee's Training",
         blogtitle: '',
         blogpost: '',
         blogposted: '',
         blogedit: 0,
-        blogredux: '',
-
-        blogtitle: ''
-
+        blogtitle: '',
+        valid: false,
+        titleRules: [
+          (v) => !!v || 'Title is required',
+          (v) => v.length <= 10 || 'Title must be less than 10 characters'
+        ],
+        postRules: [
+          (v) => !!v || 'Post is required',
+          (v) => v.length <= 30 || 'Post must be less than 30 characters'
+        ],
+        formdate: new Date().toLocaleString(),
+        itemls:  [{ title: 'Or Not', post: ' This maybe okay ', posted: 'Today - Time'}]
       }
     }
   ,
   methods: {
-    submit : function() {
-        //alert("hello");
-        //console.log(this.blogedit + ' - before');
-     if(this.blogedit > 0){
-       this.blogredux = "{ title:" + this.blogtitle + ', post: ' + this.blogpost + ', posted: ' + 'Today'+ "}";
-       //console.log(this.blogredux);
-       //console.log(this.blogedit);
-       //this.itemls.splice(this.blogedit, 1,this.blogredux)
-       this.itemls[this.blogedit].title = this.blogtitle;
-       this.itemls[this.blogedit].post = this.blogpost;
-       this.itemls[this.blogedit].posted = 'Today';
-
-       //this.itemls.$set(this.blogedit, this.blogredux)
-    }else {
-      this.itemls.push({
-        title: this.blogtitle,
-        post: this.blogpost,
-        posted: 'Today'
-      })
-      //this.blogtitle = '';
-      //this.blogpost = '';
-
-    }
-    this.blogtitle = '';
-    this.blogpost = '';
+    submit() {
+      //console.log(this.formdate);
+      if(this.blogedit > 0){
+         //this.itemls.splice(this.blogedit, 1,this.blogredux)
+         this.itemls[this.blogedit].title = this.blogtitle;
+         this.itemls[this.blogedit].post = this.blogpost;
+         this.itemls[this.blogedit].posted = this.formdate;
+      }else{
+        this.itemls.push({
+          title: this.blogtitle,
+          post: this.blogpost,
+          posted: this.formdate
+        })
+      }
+      this.blogtitle = '';
+      this.blogpost = '';
+      this.blogposted = this.formdate;
     },
-    clear : function() {
-        //this.form.reset()
+    clear() {
         this.blogtitle = '';
         this.blogpost = '';
-
-    },
-    removeit : function(index) {
       
+    },
+    removeit(index) {
       this.itemls.splice(index, 1);
     }
     ,
-    editit : function(index) {
-      //alert(index);
+    editit(index) {
       this.blogtitle = this.itemls[index].title;
       this.blogpost = this.itemls[index].post;
-
+      this.blogposted = this.itemls[index].posted;
       this.blogedit = index;
-
     }
   }
-
   }
 </script>
